@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Simulasi SKD 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Menyembunyikan halaman yang tidak aktif */
+        .page {
+            display: none;
+        }
+        .active-page {
+            display: block;
+        }
+        /* Styling untuk tombol navigasi soal */
+        .nav-button {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-button-current {
+            background-color: #1d4ed8; /* blue-700 */
+            color: white;
+            transform: scale(1.1);
+        }
+        .nav-button-answered {
+            background-color: #16a34a; /* green-600 */
+            color: white;
+        }
+        #modal-box {
+            transition: all 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <!-- Halaman Login -->
+    <div id="login-page" class="page active-page w-full max-w-md">
+        <div class="bg-white shadow-lg rounded-xl p-8">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Ujian Simulasi SKD</h1>
+                <p class="text-gray-500">Silakan login untuk memulai</p>
+            </div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" id="username" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    Login
+                </button>
+            </form>
+            <div id="login-error" class="text-red-500 text-sm mt-4 text-center hidden"></div>
+        </div>
+    </div>
+
+    <!-- Halaman Ujian -->
+    <div id="test-page" class="page w-full max-w-6xl p-4 md:p-6">
+        <div class="bg-white shadow-lg rounded-xl">
+            <!-- Header Ujian -->
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">Soal TIU Kuantitatif</h2>
+                <div class="text-lg font-semibold bg-red-100 text-red-700 px-4 py-1 rounded-md">
+                    <span id="timer">00:00</span>
+                </div>
+            </div>
+
+            <!-- Konten Soal -->
+            <div class="p-6">
+                <div class="mb-6">
+                    <p class="text-lg font-semibold text-gray-800 mb-2">Soal No. <span id="question-number">1</span></p>
+                    <p id="question-text" class="text-gray-700 leading-relaxed"></p>
+                </div>
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Opsi jawaban akan digenerate oleh JS -->
+                </div>
+            </div>
+
+            <!-- Navigasi Soal -->
+            <div class="p-6 border-t border-gray-200">
+                <h3 class="font-semibold mb-4 text-center">Navigasi Soal</h3>
+                <div id="navigation-grid" class="grid grid-cols-10 md:grid-cols-20 gap-2">
+                    <!-- Tombol navigasi akan digenerate oleh JS -->
+                </div>
+                <div class="mt-6 text-center">
+                    <button id="finish-test-button" class="bg-green-600 text-white font-bold py-3 px-8 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                        Selesaikan Ujian
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Halaman Review -->
+    <div id="review-page" class="page w-full max-w-2xl">
+        <div class="bg-white shadow-lg rounded-xl p-8 text-center">
+            <svg class="mx-auto h-16 w-16 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h1 class="text-2xl font-bold text-gray-800 mt-4">Ujian Telah Selesai!</h1>
+            <p class="text-gray-600 mt-2">Terima kasih telah menyelesaikan simulasi.</p>
+            <div class="mt-6 text-left bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <p class="font-semibold text-gray-800 mb-3">Mohon kirimkan review dan hasil Anda kepada kami agar dapat kami analisis lebih lanjut.</p>
+                
+                <p class="text-sm text-gray-600 mb-2">Template Review (tinggal copy):</p>
+                <div id="review-template-container" class="bg-gray-200 text-gray-800 text-sm p-4 rounded-md mb-4 whitespace-pre-wrap"></div>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="copy-template-button" class="w-full sm:w-auto flex-1 bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition-all">
+                        Copy Template
+                    </button>
+                    <a id="send-review-link" href="#" target="_blank" class="w-full sm:w-auto flex-1 bg-green-500 text-white font-bold py-2 px-4 rounded-md hover:bg-green-600 transition-all text-center">
+                        Kirim via WhatsApp
+                    </a>
+                </div>
+                <p id="copy-success-message" class="text-green-600 text-sm mt-3 text-center hidden">Template berhasil di-copy!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div id="modal-box" class="bg-white shadow-lg rounded-xl p-8 max-w-sm w-full text-center transform transition-all scale-95 opacity-0">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Konfirmasi Penyelesaian</h3>
+            <p class="text-gray-600 mb-6">Apakah Anda yakin ingin menyelesaikan ujian? Tindakan ini tidak dapat dibatalkan.</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-modal-no" class="px-8 py-2 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition-colors">Batal</button>
+                <button id="confirm-modal-yes" class="px-8 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">Ya, Selesaikan</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Kumpulan Soal TIU Kuantitatif (Level Sulit) ---
+        const questions = [
+            // Soal 1-20 (Aritmetika Kompleks & Aljabar)
+            { question: "Jika 3^(2x-1) = 2187, dan 2^(y+2) = 512, maka nilai dari (x-y)^2 adalah...", options: { A: "1", B: "4", C: "9", D: "16", E: "25" }, answer: "A" },
+            { question: "Sebuah proyek dapat diselesaikan oleh 8 pekerja dalam 15 hari. Jika setelah 5 hari bekerja, proyek dihentikan selama 3 hari, berapa tambahan pekerja yang dibutuhkan agar proyek selesai tepat waktu?", options: { A: "2", B: "3", C: "4", D: "5", E: "6" }, answer: "C" },
+            { question: "Nilai dari (0.875 / 1.25) - (0.25 * 1/5) adalah...", options: { A: "0.55", B: "0.60", C: "0.65", D: "0.70", E: "0.75" }, answer: "C" },
+            { question: "Jika p adalah 27.5% dari 80, dan q adalah akar kuadrat dari 625, maka...", options: { A: "p > q", B: "p < q", C: "p = q", D: "p = 2q", E: "Hubungan tidak dapat ditentukan" }, answer: "B" },
+            { question: "Sebuah drum berisi minyak 3/4 penuh. Jika ditambahkan 5 liter minyak, drum menjadi 5/6 penuh. Berapa kapasitas total drum tersebut?", options: { A: "45 liter", B: "50 liter", C: "60 liter", D: "75 liter", E: "90 liter" }, answer: "C" },
+            { question: "Rata-rata nilai 5 siswa adalah 80. Jika nilai siswa keenam ditambahkan, rata-ratanya menjadi 82. Berapa nilai siswa keenam?", options: { A: "88", B: "90", C: "92", D: "94", E: "96" }, answer: "C" },
+            { question: "Jika x/y = 3/4 dan y/z = 5/6, maka rasio x:z adalah...", options: { A: "1:2", B: "5:8", C: "8:5", D: "2:1", E: "3:5" }, answer: "B" },
+            { question: "Harga sebuah buku didiskon dua kali berturut-turut, yaitu 20% dan 15%. Berapa total persentase diskon dari harga awal?", options: { A: "32%", B: "35%", C: "38%", D: "40%", E: "42%" }, answer: "A" },
+            { question: "Sebuah kereta berjalan dengan kecepatan 90 km/jam selama 2 jam, kemudian 60 km/jam selama 3 jam. Berapa kecepatan rata-rata kereta selama perjalanan?", options: { A: "72 km/jam", B: "75 km/jam", C: "78 km/jam", D: "80 km/jam", E: "82 km/jam" }, answer: "A" },
+            { question: "Jika (x^2 - 4) / (x-2) = 5, maka nilai x adalah...", options: { A: "1", B: "2", C: "3", D: "4", E: "5" }, answer: "C" },
+            { question: "Umur Adi adalah 2/3 umur Budi. Enam tahun yang akan datang, jumlah umur mereka adalah 42 tahun. Berapa selisih umur mereka sekarang?", options: { A: "4 tahun", B: "5 tahun", C: "6 tahun", D: "7 tahun", E: "8 tahun" }, answer: "C" },
+            { question: "Jika 1/a + 1/b = 5 dan 1/a - 1/b = 3, maka nilai dari 1/a^2 - 1/b^2 adalah...", options: { A: "8", B: "15", C: "16", D: "24", E: "25" }, answer: "B" },
+            { question: "Sebuah bilangan jika dikalikan 5 kemudian hasilnya dikurangi 7 adalah sama dengan bilangan itu sendiri ditambah 13. Bilangan berapakah itu?", options: { A: "4", B: "5", C: "6", D: "7", E: "8" }, answer: "B" },
+            { question: "Dari 40 siswa, 25 suka matematika, 20 suka fisika, dan 10 suka keduanya. Berapa banyak siswa yang tidak suka keduanya?", options: { A: "0", B: "5", C: "8", D: "10", E: "12" }, answer: "B" },
+            { question: "Jika x*y = x^2 - y^2, maka nilai dari 3*(2*1) adalah...", options: { A: "0", B: "3", C: "6", D: "9", E: "12" }, answer: "A" },
+            { question: "Sebuah mobil menempuh jarak 120 km dengan 15 liter bensin. Jika mobil tersebut memiliki 20 liter bensin di tangki, berapa jarak maksimal yang bisa ditempuh?", options: { A: "150 km", B: "160 km", C: "180 km", D: "200 km", E: "240 km" }, answer: "B" },
+            { question: "Pecahan yang nilainya di antara 3/5 dan 5/7 adalah...", options: { A: "1/2", B: "2/3", C: "4/5", D: "6/7", E: "7/9" }, answer: "B" },
+            { question: "Seorang pedagang membeli 1 kodi baju seharga Rp 1.200.000. Jika ia ingin untung 25%, berapa harga jual per potong baju?", options: { A: "Rp 65.000", B: "Rp 70.000", C: "Rp 75.000", D: "Rp 80.000", E: "Rp 85.000" }, answer: "C" },
+            { question: "Jika x = 1/16 dan y = 16%, maka...", options: { A: "x > y", B: "x < y", C: "x = y", D: "x = 2y", E: "Hubungan tidak dapat ditentukan" }, answer: "B" },
+            { question: "Berapakah 66.67% dari 963?", options: { A: "321", B: "642", C: "722", D: "841", E: "900" }, answer: "B" },
+            // Soal 21-40 (Deret Angka & Huruf)
+            { question: "2, 3, 5, 8, 13, ...", options: { A: "18", B: "20", C: "21", D: "23", E: "25" }, answer: "C" },
+            { question: "100, 95, 85, 70, 50, ...", options: { A: "25", B: "30", C: "35", D: "40", E: "45" }, answer: "A" },
+            { question: "A, C, F, J, O, ...", options: { A: "T", B: "U", C: "V", D: "W", E: "X" }, answer: "B" },
+            { question: "5, 7, 10, 15, 22, ...", options: { A: "30", B: "31", C: "32", D: "33", E: "34" }, answer: "D" },
+            { question: "9, 16, 25, 36, ...", options: { A: "47", B: "48", C: "49", D: "50", E: "64" }, answer: "C" },
+            { question: "Z, X, U, Q, L, ...", options: { A: "F", B: "G", C: "H", D: "I", E: "J" }, answer: "A" },
+            { question: "1, 4, 27, 256, ...", options: { A: "625", B: "1024", C: "3125", D: "4096", E: "5000" }, answer: "C" },
+            { question: "81, 27, 9, 3, ...", options: { A: "1", B: "1/3", C: "0", D: "-1", E: "-3" }, answer: "A" },
+            { question: "B, E, I, N, ...", options: { A: "S", B: "T", C: "U", D: "V", E: "W" }, answer: "B" },
+            { question: "3, 4, 7, 11, 18, ...", options: { A: "25", B: "27", C: "29", D: "31", E: "33" }, answer: "C" },
+            { question: "1, 1, 2, 3, 5, 8, ...", options: { A: "11", B: "12", C: "13", D: "14", E: "15" }, answer: "C" },
+            { question: "C, G, K, O, ...", options: { A: "R", B: "S", C: "T", D: "U", E: "V" }, answer: "B" },
+            { question: "2, 6, 12, 20, 30, ...", options: { A: "40", B: "42", C: "44", D: "46", E: "48" }, answer: "B" },
+            { question: "99, 96, 91, 84, 75, ...", options: { A: "64", B: "65", C: "66", D: "67", E: "68" }, answer: "A" },
+            { question: "A, Z, B, Y, C, ...", options: { A: "D", B: "W", C: "X", D: "E", E: "V" }, answer: "C" },
+            { question: "4, 12, 6, 18, 9, ...", options: { A: "18", B: "27", C: "36", D: "45", E: "54" }, answer: "B" },
+            { question: "1/2, 1, 3/2, 2, 5/2, ...", options: { A: "3", B: "7/2", C: "4", D: "9/2", E: "5" }, answer: "A" },
+            { question: "F, G, H, I, J, K, ...", options: { A: "L", B: "M", C: "N", D: "O", E: "P" }, answer: "A" },
+            { question: "5, 10, 8, 13, 11, ...", options: { A: "14", B: "15", C: "16", D: "17", E: "18" }, answer: "C" },
+            { question: "AZ, BY, CX, DW, ...", options: { A: "EU", B: "EV", C: "FU", D: "FV", E: "GV" }, answer: "B" },
+            // Soal 41-60 (Geometri & Spasial)
+            { question: "Sebuah kubus memiliki volume 512 cm³. Berapa panjang diagonal ruangnya?", options: { A: "8 cm", B: "8√2 cm", C: "8√3 cm", D: "12 cm", E: "12√2 cm" }, answer: "C" },
+            { question: "Luas sebuah lingkaran adalah 154 cm². Berapa kelilingnya? (π=22/7)", options: { A: "22 cm", B: "44 cm", C: "66 cm", D: "88 cm", E: "110 cm" }, answer: "B" },
+            { question: "Sebuah segitiga siku-siku memiliki sisi miring 13 cm dan salah satu sisi siku-sikunya 5 cm. Berapa luas segitiga tersebut?", options: { A: "25 cm²", B: "30 cm²", C: "32.5 cm²", D: "60 cm²", E: "65 cm²" }, answer: "B" },
+            { question: "Sebuah taman berbentuk persegi panjang dengan ukuran 30m x 20m. Di sekeliling taman akan ditanami pohon dengan jarak antar pohon 2m. Berapa banyak pohon yang dibutuhkan?", options: { A: "48", B: "50", C: "52", D: "98", E: "100" }, answer: "B" },
+            { question: "Sebuah tabung tanpa tutup memiliki jari-jari 7 cm dan tinggi 10 cm. Berapa luas permukaannya? (π=22/7)", options: { A: "594 cm²", B: "616 cm²", C: "748 cm²", D: "800 cm²", E: "902 cm²" }, answer: "A" },
+            { question: "Sudut terkecil yang dibentuk oleh jarum jam pada pukul 04:30 adalah...", options: { A: "30°", B: "45°", C: "60°", D: "75°", E: "90°" }, answer: "B" },
+            { question: "Sebuah balok berukuran 12cm x 8cm x 5cm. Berapa banyak kubus satuan (1cm³) yang bisa dimasukkan ke dalamnya?", options: { A: "240", B: "360", C: "480", D: "520", E: "600" }, answer: "C" },
+            { question: "Keliling sebuah persegi sama dengan keliling sebuah persegi panjang berukuran 10cm x 6cm. Mana yang lebih luas?", options: { A: "Persegi", B: "Persegi panjang", C: "Sama luas", D: "Tidak bisa ditentukan", E: "Persegi 2x lebih luas" }, answer: "A" },
+            { question: "Jika sisi sebuah bujur sangkar ditambah 20%, berapa persen kenaikan luasnya?", options: { A: "20%", B: "40%", C: "44%", D: "120%", E: "144%" }, answer: "C" },
+            { question: "Sebuah roda berdiameter 42 cm berputar sebanyak 50 kali. Berapa jarak yang ditempuh? (π=22/7)", options: { A: "66 m", B: "77 m", C: "88 m", D: "99 m", E: "132 m" }, answer: "A" },
+            { question: "Berapa banyak diagonal yang dimiliki oleh sebuah segi delapan (oktagon)?", options: { A: "16", B: "20", C: "24", D: "28", E: "32" }, answer: "B" },
+            { question: "Sebuah prisma segitiga memiliki alas berbentuk segitiga siku-siku dengan sisi 5cm, 12cm, 13cm. Jika tinggi prisma 20cm, berapa volumenya?", options: { A: "300 cm³", B: "600 cm³", C: "650 cm³", D: "1200 cm³", E: "1560 cm³" }, answer: "B" },
+            { question: "Jumlah sudut dalam sebuah segi enam adalah...", options: { A: "360°", B: "540°", C: "720°", D: "900°", E: "1080°" }, answer: "C" },
+            { question: "Sebuah akuarium berbentuk kubus terisi air 1/3 bagian dan membutuhkan 144 liter air lagi untuk penuh. Berapa panjang rusuk akuarium?", options: { A: "40 cm", B: "50 cm", C: "60 cm", D: "70 cm", E: "80 cm" }, answer: "C" },
+            { question: "Sebuah lapangan berbentuk lingkaran dengan diameter 100 meter. Andi berlari mengelilingi lapangan sebanyak 3 kali. Berapa jarak yang ditempuhnya? (π=3.14)", options: { A: "314 m", B: "628 m", C: "942 m", D: "1256 m", E: "1570 m" }, answer: "C" },
+            { question: "Sebuah foto berukuran 20cm x 30cm diletakkan pada selembar karton. Di sebelah kiri, kanan, dan atas foto masih ada sisa karton selebar 3cm. Jika foto dan karton sebangun, berapa lebar sisa karton di bagian bawah?", options: { A: "3 cm", B: "4 cm", C: "5 cm", D: "6 cm", E: "7 cm" }, answer: "C" },
+            { question: "Sebuah kerucut memiliki volume 462 cm³ dan jari-jari 7 cm. Berapa tingginya? (π=22/7)", options: { A: "6 cm", B: "7 cm", C: "8 cm", D: "9 cm", E: "10 cm" }, answer: "D" },
+            { question: "Luas belah ketupat adalah 96 cm² dan panjang salah satu diagonalnya 16 cm. Berapa keliling belah ketupat tersebut?", options: { A: "32 cm", B: "40 cm", C: "48 cm", D: "52 cm", E: "60 cm" }, answer: "B" },
+            { question: "Sebuah bola dimasukkan ke dalam tabung sehingga menyinggung semua sisi tabung. Jika jari-jari bola 10 cm, berapa volume ruang kosong di dalam tabung?", options: { A: "(1000/3)π", B: "(2000/3)π", C: "1000π", D: "(4000/3)π", E: "2000π" }, answer: "B" },
+            { question: "Perbandingan panjang, lebar, dan tinggi sebuah balok adalah 4:3:2. Jika luas permukaannya 208 cm², berapa volumenya?", options: { A: "128 cm³", B: "192 cm³", C: "256 cm³", D: "384 cm³", E: "512 cm³" }, answer: "B" },
+            // Soal 61-80 (Logika & Analitis)
+            { question: "Semua mahasiswa memakai sepatu. Sebagian mahasiswa memakai kacamata. Kesimpulannya...", options: { A: "Sebagian mahasiswa berkacamata dan bersepatu.", B: "Semua mahasiswa bersepatu tidak berkacamata.", C: "Sebagian mahasiswa tidak bersepatu.", D: "Semua mahasiswa berkacamata pasti bersepatu.", E: "A dan D benar" }, answer: "E" },
+            { question: "Jika hari ini hujan, maka ibu membawa payung. Hari ini ibu tidak membawa payung. Kesimpulannya...", options: { A: "Hari ini tidak hujan.", B: "Hari ini cerah.", C: "Ibu lupa membawa payung.", D: "Hari ini hujan tapi ibu tidak membawa payung.", E: "Tidak dapat disimpulkan." }, answer: "A" },
+            { question: "A, B, C, D, E duduk melingkar. A duduk di antara E dan B. C duduk dua kursi di sebelah kanan B. Siapa yang duduk di seberang C?", options: { A: "A", B: "B", C: "D", D: "E", E: "Tidak bisa ditentukan" }, answer: "D" },
+            { question: "P lebih tinggi dari Q. R lebih pendek dari P tapi lebih tinggi dari S. Q lebih tinggi dari S. T lebih pendek dari Q. Siapa yang paling pendek?", options: { A: "P", B: "Q", C: "R", D: "S", E: "T" }, answer: "E" },
+            { question: "Semua bunga mawar berduri. Sebagian tanaman hias adalah bunga mawar. Kesimpulannya...", options: { A: "Semua tanaman hias berduri.", B: "Sebagian tanaman hias berduri.", C: "Tidak ada tanaman hias yang berduri.", D: "Semua bunga mawar adalah tanaman hias.", E: "Semua yang berduri adalah mawar." }, answer: "B" },
+            { question: "Jika lampu merah, maka kendaraan berhenti. Jika kendaraan berhenti, maka terjadi kemacetan. Kesimpulannya...", options: { A: "Jika lampu merah, maka terjadi kemacetan.", B: "Jika tidak ada kemacetan, maka lampu tidak merah.", C: "Lampu merah menyebabkan kemacetan.", D: "A dan B benar", E: "Semua benar" }, answer: "D" },
+            { question: "Dalam sebuah lomba, skor Adi lebih tinggi dari Budi. Skor Cici sama dengan skor Dedi. Skor Budi lebih tinggi dari Cici. Skor Edi lebih rendah dari Adi. Siapa yang skornya tertinggi?", options: { A: "Adi", B: "Budi", C: "Cici", D: "Dedi", E: "Edi" }, answer: "A" },
+            { question: "Semua karyawan mendapat bonus. Hanya karyawan yang berprestasi yang mendapat promosi. Kesimpulannya...", options: { A: "Yang mendapat promosi pasti mendapat bonus.", B: "Yang mendapat bonus pasti mendapat promosi.", C: "Sebagian karyawan tidak mendapat bonus.", D: "Yang tidak berprestasi tidak mendapat bonus.", E: "Tidak dapat disimpulkan." }, answer: "A" },
+            { question: "Rumah X berada di sebelah timur rumah Y. Rumah Z berada di sebelah utara rumah X. Rumah W berada di sebelah barat laut rumah Z. Di manakah posisi rumah W dari rumah Y?", options: { A: "Timur Laut", B: "Utara", C: "Barat Laut", D: "Barat Daya", E: "Tenggara" }, answer: "B" },
+            { question: "Pengurus koperasi harus berjiwa sosial. Sebagian ketua RT pernah menjadi pengurus koperasi. Kesimpulannya...", options: { A: "Semua ketua RT berjiwa sosial.", B: "Sebagian ketua RT berjiwa sosial.", C: "Ketua RT itu pengurus koperasi.", D: "Yang berjiwa sosial adalah ketua RT.", E: "Tidak dapat disimpulkan." }, answer: "B" },
+            { question: "Semua atlet berbadan sehat. Tidak ada atlet yang perokok. Kesimpulannya...", options: { A: "Yang tidak perokok pasti atlet.", B: "Yang berbadan sehat pasti tidak perokok.", C: "Sebagian yang tidak perokok adalah atlet.", D: "Tidak ada perokok yang berbadan sehat.", E: "Tidak dapat disimpulkan." }, answer: "E" },
+            { question: "Jika saya belajar, maka saya lulus. Jika saya lulus, maka saya senang. Kesimpulannya...", options: { A: "Jika saya belajar, maka saya senang.", B: "Jika saya tidak senang, maka saya tidak belajar.", C: "Saya belajar dan saya senang.", D: "A dan B benar.", E: "Semua benar." }, answer: "D" },
+            { question: "Lima orang, P, Q, R, S, T, berlari. P lebih cepat dari T. Q lebih lambat dari S. T lebih cepat dari S. R paling lambat. Urutan dari yang tercepat adalah...", options: { A: "P, T, S, Q, R", B: "P, S, T, Q, R", C: "S, T, P, Q, R", D: "T, P, S, Q, R", E: "P, T, Q, S, R" }, answer: "A" },
+            { question: "Semua mamalia menyusui. Paus adalah mamalia. Kesimpulannya...", options: { A: "Paus menyusui.", B: "Paus hidup di air.", C: "Semua yang menyusui adalah paus.", D: "Paus bukan ikan.", E: "Tidak dapat disimpulkan." }, answer: "A" },
+            { question: "Tidak ada persegi yang segitiga. Semua belah ketupat adalah persegi. Kesimpulannya...", options: { A: "Tidak ada belah ketupat yang segitiga.", B: "Sebagian belah ketupat adalah segitiga.", C: "Semua persegi adalah belah ketupat.", D: "Semua segitiga bukan persegi.", E: "Tidak dapat disimpulkan." }, answer: "A" },
+            { question: "Jika harga BBM naik, maka harga sembako naik. Saat ini harga sembako tidak naik. Kesimpulannya...", options: { A: "Harga BBM tidak naik.", B: "Harga BBM turun.", C: "Harga BBM stabil.", D: "Pemerintah memberi subsidi.", E: "Tidak dapat disimpulkan." }, answer: "A" },
+            { question: "Semua A adalah B. Sebagian C adalah A. Kesimpulannya...", options: { A: "Semua C adalah B.", B: "Sebagian C adalah B.", C: "Semua B adalah C.", D: "Sebagian B adalah C.", E: "Tidak ada C yang B." }, answer: "B" },
+            { question: "Jika Fani rajin, maka ia disayang ibu. Jika Fani disayang ibu, maka ia dibelikan sepeda. Fani tidak dibelikan sepeda. Kesimpulannya...", options: { A: "Fani tidak rajin.", B: "Fani rajin.", C: "Ibu tidak sayang Fani.", D: "Fani tidak mau sepeda.", E: "Fani rajin tapi tidak disayang ibu." }, answer: "A" },
+            { question: "Kayu lebih keras dari kapas. Batu lebih keras dari kayu. Besi lebih keras dari batu. Mana yang paling tidak keras?", options: { A: "Kayu", B: "Kapas", C: "Batu", D: "Besi", E: "Sama saja" }, answer: "B" },
+            { question: "Setiap pembelian 3 buku gratis 1 pulpen. Ani membeli 10 buku. Berapa pulpen yang didapat Ani?", options: { A: "1", B: "2", C: "3", D: "4", E: "10" }, answer: "C" },
+            // Soal 81-100 (Kombinasi & Soal Cerita Sulit)
+            { question: "Dari 8 orang calon pengurus OSIS, akan dipilih ketua, wakil, dan bendahara. Berapa banyak susunan pengurus yang mungkin?", options: { A: "24", B: "56", C: "336", D: "512", E: "40320" }, answer: "C" },
+            { question: "Dalam sebuah kotak terdapat 5 bola merah dan 3 bola biru. Jika diambil 2 bola secara acak, berapa peluang terambilnya kedua bola berwarna merah?", options: { A: "5/14", B: "5/28", C: "10/28", D: "10/56", E: "25/64" }, answer: "A" },
+            { question: "Sebuah password terdiri dari 4 digit angka berbeda yang disusun dari angka 1, 2, 3, 5, 7, 8. Berapa banyak password yang bisa dibuat?", options: { A: "24", B: "120", C: "360", D: "720", E: "1296" }, answer: "C" },
+            { question: "Ayah, Ibu, dan 3 orang anak duduk di 5 kursi yang berderet. Berapa banyak cara mereka duduk jika Ayah dan Ibu harus selalu di ujung?", options: { A: "6", B: "12", C: "24", D: "60", E: "120" }, answer: "B" },
+            { question: "Sebuah perusahaan memiliki 6 staf pemasaran. Berapa banyak cara membentuk tim yang terdiri dari 3 orang?", options: { A: "18", B: "20", C: "120", D: "216", E: "720" }, answer: "B" },
+            { question: "Sebuah dadu dan sekeping koin dilempar bersamaan. Berapa peluang munculnya mata dadu ganjil dan sisi gambar pada koin?", options: { A: "1/4", B: "1/3", C: "1/2", D: "2/3", E: "3/4" }, answer: "A" },
+            { question: "Rata-rata tinggi 10 siswa adalah 165 cm. Setelah 2 siswa keluar, rata-ratanya menjadi 166 cm. Jika tinggi salah satu siswa yang keluar adalah 160 cm, berapa tinggi siswa lainnya yang keluar?", options: { A: "158 cm", B: "160 cm", C: "162 cm", D: "164 cm", E: "165 cm" }, answer: "A" },
+            { question: "Sebuah pekerjaan dapat diselesaikan oleh A dalam 10 hari, dan oleh B dalam 15 hari. Jika mereka bekerja bersama, berapa hari pekerjaan itu akan selesai?", options: { A: "4 hari", B: "5 hari", C: "6 hari", D: "7 hari", E: "8 hari" }, answer: "C" },
+            { question: "Sebuah pompa air A dapat mengisi bak dalam 4 jam. Pompa B dalam 6 jam. Jika kedua pompa dinyalakan bersamaan selama 1.5 jam, berapa bagian bak yang sudah terisi?", options: { A: "1/2", B: "2/3", C: "3/4", D: "5/8", E: "7/8" }, answer: "D" },
+            { question: "Perbandingan uang Ali dan Budi adalah 2:3. Perbandingan uang Budi dan Cici adalah 4:5. Jika jumlah uang mereka bertiga adalah Rp 700.000, berapa uang Ali?", options: { A: "Rp 120.000", B: "Rp 150.000", C: "Rp 160.000", D: "Rp 200.000", E: "Rp 240.000" }, answer: "C" },
+            { question: "Suatu tes terdiri dari 50 soal. Jawaban benar diberi skor 4, salah -2, dan tidak dijawab -1. Budi menjawab 45 soal dan mendapat skor 125. Berapa banyak soal yang dijawab Budi dengan benar?", options: { A: "35", B: "38", C: "40", D: "42", E: "43" }, answer: "B" },
+            { question: "Dua buah dadu dilempar bersamaan. Berapa peluang munculnya jumlah mata dadu sama dengan 9?", options: { A: "1/9", B: "1/6", C: "5/36", D: "1/4", E: "1/3" }, answer: "A" },
+            { question: "Dari angka 1, 2, 3, 4, 5 akan disusun bilangan ratusan ganjil dan tidak ada angka yang berulang. Berapa banyak bilangan yang bisa dibuat?", options: { A: "18", B: "24", C: "36", D: "48", E: "60" }, answer: "C" },
+            { question: "Sebuah kapal berlayar 12 km ke utara, kemudian 16 km ke timur. Berapa jarak terpendek kapal dari titik awal?", options: { A: "18 km", B: "20 km", C: "24 km", D: "28 km", E: "30 km" }, answer: "B" },
+            { question: "Sebuah toko menjual baju dengan untung 20%. Jika harga beli baju Rp 150.000, dan toko memberikan diskon 10% dari harga jual, berapa keuntungan yang diperoleh toko?", options: { A: "Rp 12.000", B: "Rp 15.000", C: "Rp 18.000", D: "Rp 20.000", E: "Rp 30.000" }, answer: "A" },
+            { question: "Dani menabung di bank sebesar Rp 2.000.000 dengan bunga tunggal 9% per tahun. Berapa total tabungan Dani setelah 8 bulan?", options: { A: "Rp 2.120.000", B: "Rp 2.150.000", C: "Rp 2.180.000", D: "Rp 2.240.000", E: "Rp 2.360.000" }, answer: "A" },
+            { question: "Dalam suatu rapat yang dihadiri 10 orang, semua orang saling berjabat tangan satu kali. Berapa banyak jabat tangan yang terjadi?", options: { A: "20", B: "45", C: "50", D: "90", E: "100" }, answer: "B" },
+            { question: "Jika 2x + 3y = 18 dan 4x - y = 8, maka nilai dari x + y adalah...", options: { A: "5", B: "6", C: "7", D: "8", E: "9" }, answer: "C" },
+            { question: "Sebuah mesin fotokopi dapat menghasilkan 500 lembar dalam 10 menit. Jika mesin bekerja dari pukul 08:50 sampai 10:20, berapa lembar yang dihasilkan?", options: { A: "3500", B: "4000", C: "4500", D: "5000", E: "5500" }, answer: "C" },
+            { question: "Seutas tali dipotong menjadi 6 bagian membentuk deret geometri. Jika potongan terpendek 3 cm dan terpanjang 96 cm, berapa panjang tali semula?", options: { A: "183 cm", B: "186 cm", C: "189 cm", D: "192 cm", E: "195 cm" }, answer: "C" }
+        ];
+
+        // --- Variabel Global & State ---
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let timerInterval;
+        let score = 0;
+        let timeSpent = 0;
+        const TEST_DURATION_SECONDS = 100 * 90; // 100 soal, 90 detik per soal
+        const CORRECT_USERNAME = "pesertaskd";
+        const CORRECT_PASSWORD = "skdsukses2025";
+        
+        // --- Referensi Elemen DOM ---
+        const pages = {
+            login: document.getElementById('login-page'),
+            test: document.getElementById('test-page'),
+            review: document.getElementById('review-page'),
+        };
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const navigationGrid = document.getElementById('navigation-grid');
+        const timerEl = document.getElementById('timer');
+        const finishTestButton = document.getElementById('finish-test-button');
+        const reviewTemplateContainer = document.getElementById('review-template-container');
+        const copyTemplateButton = document.getElementById('copy-template-button');
+        const sendReviewLink = document.getElementById('send-review-link');
+        const copySuccessMessage = document.getElementById('copy-success-message');
+        const confirmModal = document.getElementById('confirm-modal');
+        const modalBox = document.getElementById('modal-box');
+        const confirmModalYes = document.getElementById('confirm-modal-yes');
+        const confirmModalNo = document.getElementById('confirm-modal-no');
+
+        // --- Fungsi Utama ---
+        
+        // Fungsi untuk berpindah halaman
+        function showPage(pageName) {
+            Object.values(pages).forEach(page => page.classList.remove('active-page'));
+            pages[pageName].classList.add('active-page');
+        }
+
+        // Fungsi untuk menampilkan soal
+        function displayQuestion(index) {
+            currentQuestionIndex = index;
+            const question = questions[index];
+            questionNumberEl.textContent = index + 1;
+            questionTextEl.textContent = question.question;
+            optionsContainer.innerHTML = '';
+            
+            Object.entries(question.options).forEach(([key, value]) => {
+                const optionButton = document.createElement('button');
+                optionButton.className = 'p-4 border border-gray-300 rounded-md text-left hover:bg-blue-50 hover:border-blue-400 transition-colors';
+                if (userAnswers[index] === key) {
+                    optionButton.classList.add('bg-blue-100', 'border-blue-500');
+                }
+                optionButton.innerHTML = `<span class="font-bold mr-2">${key}.</span> ${value}`;
+                optionButton.onclick = () => selectAnswer(index, key);
+                optionsContainer.appendChild(optionButton);
+            });
+            updateNavigationButtons();
+        }
+
+        // Fungsi untuk memilih jawaban
+        function selectAnswer(questionIndex, answerKey) {
+            userAnswers[questionIndex] = answerKey;
+            displayQuestion(questionIndex); // Re-render untuk menunjukkan pilihan
+        }
+        
+        // Fungsi untuk update tombol navigasi
+        function updateNavigationButtons() {
+            Array.from(navigationGrid.children).forEach((button, index) => {
+                button.classList.remove('nav-button-current', 'nav-button-answered');
+                if (index === currentQuestionIndex) {
+                    button.classList.add('nav-button-current');
+                } else if (userAnswers[index] !== undefined) {
+                    button.classList.add('nav-button-answered');
+                }
+            });
+        }
+        
+        // Fungsi untuk memulai timer
+        function startTimer() {
+            let remainingTime = TEST_DURATION_SECONDS;
+            timeSpent = 0;
+
+            timerInterval = setInterval(() => {
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    finishTest();
+                    return;
+                }
+                remainingTime--;
+                timeSpent = TEST_DURATION_SECONDS - remainingTime;
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Fungsi untuk menyelesaikan ujian
+        function finishTest() {
+            clearInterval(timerInterval);
+            
+            // Hitung skor
+            score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].answer) {
+                    score++;
+                }
+            }
+            
+            // Tampilkan halaman review
+            prepareReviewPage();
+            showPage('review');
+        }
+
+        // Fungsi untuk menyiapkan halaman review
+        function prepareReviewPage() {
+            const totalQuestions = questions.length;
+            const correctAnswers = score;
+            const answeredCount = Object.keys(userAnswers).length;
+            const wrongAnswers = answeredCount - correctAnswers;
+            const unanswered = totalQuestions - answeredCount;
+            const scorePercentage = ((correctAnswers / totalQuestions) * 100).toFixed(2);
+            const minutes = Math.floor(timeSpent / 60);
+            const seconds = timeSpent % 60;
+
+            const reviewText = `
+Halo, saya telah menyelesaikan simulasi SKD.
+Berikut adalah rekap hasil saya:
+
+Skor: ${correctAnswers} / ${totalQuestions} (${scorePercentage}%)
+Waktu Pengerjaan: ${minutes} menit ${seconds} detik.
+
+Detail:
+- Jawaban Benar: ${correctAnswers}
+- Jawaban Salah: ${wrongAnswers}
+- Tidak Dijawab: ${unanswered}
+
+Mohon review dan feedbacknya. Terima kasih.
+            `.trim();
+
+            reviewTemplateContainer.textContent = reviewText;
+            
+            const whatsappLink = `https://wa.me/6281385058466?text=${encodeURIComponent(reviewText)}`;
+            sendReviewLink.href = whatsappLink;
+        }
+
+        // Fungsi untuk menyalin template
+        function copyTemplate() {
+            const el = document.createElement('textarea');
+            el.value = reviewTemplateContainer.textContent;
+            document.body.appendChild(el);
+            el.select();
+            // document.execCommand('copy') digunakan untuk kompatibilitas
+            try {
+                document.execCommand('copy');
+                copySuccessMessage.classList.remove('hidden');
+                setTimeout(() => copySuccessMessage.classList.add('hidden'), 2000);
+            } catch (err) {
+                alert('Gagal menyalin. Mohon salin secara manual.');
+            }
+            document.body.removeChild(el);
+        }
+
+        // --- Fungsi untuk Modal Konfirmasi ---
+        function showConfirmModal() {
+            confirmModal.classList.remove('hidden');
+            setTimeout(() => {
+                modalBox.classList.remove('scale-95', 'opacity-0');
+                modalBox.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function hideConfirmModal() {
+            modalBox.classList.add('scale-95', 'opacity-0');
+            modalBox.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                confirmModal.classList.add('hidden');
+            }, 300);
+        }
+
+        // --- Event Listeners ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
+                loginError.classList.add('hidden');
+                showPage('test');
+                displayQuestion(0);
+                startTimer();
+            } else {
+                loginError.textContent = "Username atau Password salah.";
+                loginError.classList.remove('hidden');
+            }
+        });
+
+        finishTestButton.addEventListener('click', showConfirmModal);
+        
+        confirmModalNo.addEventListener('click', hideConfirmModal);
+
+        confirmModalYes.addEventListener('click', () => {
+            hideConfirmModal();
+            setTimeout(() => {
+                finishTest();
+            }, 350);
+        });
+        
+        copyTemplateButton.addEventListener('click', copyTemplate);
+
+        // --- Inisialisasi Aplikasi ---
+        function initializeAppLogic() {
+            // Buat tombol navigasi
+            for (let i = 0; i < questions.length; i++) {
+                const button = document.createElement('button');
+                button.textContent = i + 1;
+                button.className = 'nav-button w-full h-10 border border-gray-300 rounded-md hover:bg-gray-200';
+                button.onclick = () => displayQuestion(i);
+                navigationGrid.appendChild(button);
+            }
+        }
+        
+        initializeAppLogic();
+
+    </script>
+</body>
+</html>
